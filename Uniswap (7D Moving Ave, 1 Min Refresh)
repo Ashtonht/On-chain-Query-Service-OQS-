@@ -1,1 +1,22 @@
+pragma solidity ^0.8.0;
+
+contract MovingAverage {
+
+    struct Average {
+        uint256 timestamp;
+        uint256 priceAverage;
+        uint256 volumeAverage;
+    }
+
+    mapping(uint256 => Average) public movingAverages;
+
+    function updateMovingAverage(uint256 day, uint256 priceAverage, uint256 volumeAverage) public {
+        movingAverages[day] = Average(block.timestamp, priceAverage, volumeAverage);
+    }
+
+    function getMovingAverage(uint256 day) public view returns (uint256, uint256, uint256) {
+        Average memory average = movingAverages[day];
+        return (average.timestamp, average.priceAverage, average.volumeAverage);
+    }
+}
 
