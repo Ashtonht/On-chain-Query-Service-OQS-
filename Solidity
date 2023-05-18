@@ -1,0 +1,52 @@
+pragma solidity ^0.8.0;
+
+contract QueryEngine {
+    struct Record {
+        uint id;
+        string data;
+        address owner;
+    }
+
+    Record[] public records;
+
+    mapping(uint => address) public recordOwners;
+
+    function createRecord(string memory data) public {
+        uint id = records.length;
+        records.push(Record(id, data, msg.sender));
+        recordOwners[id] = msg.sender;
+    }
+
+    function updateRecord(uint id, string memory data) public {
+        require(msg.sender == recordOwners[id], "Not the owner");
+        records[id].data = data;
+    }
+
+    function deleteRecord(uint id) public {
+        require(msg.sender == recordOwners[id], "Not the owner");
+        delete records[id];
+    }
+
+    function getRecord(uint id) public view returns (Record memory) {
+        return records[id];
+    }
+
+    function getRecordsByOwner(address owner) public view returns (Record[] memory) {
+        Record[] memory results = new Record[](records.length);
+        uint count = 0;
+
+        for (uint i = 0; i < records.length; i++) {
+            if (recordOwners[i] == owner) {
+                results[count] = records[i];
+                count++;
+            }
+        }
+
+        // Resize memory array to fit actual number of results
+        assembly {
+            mstore(results, count)
+        }
+
+        return results;
+    }
+}
